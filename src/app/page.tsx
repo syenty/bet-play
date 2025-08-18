@@ -10,9 +10,11 @@ export default function HomePage() {
             사다리 게임
           </button>
         </Link>
-        <button className="rounded-lg bg-green-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-green-600">
-          게임 2
-        </button>
+        <Link href="/roulette-game">
+          <button className="w-full rounded-lg bg-green-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-green-600">
+            룰렛 게임
+          </button>
+        </Link>
         <button className="rounded-lg bg-red-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-red-600">
           게임 3
         </button>
