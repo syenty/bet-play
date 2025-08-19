@@ -70,17 +70,22 @@ export default function RouletteGamePage() {
     setResult(null);
     setIsSpinning(true);
 
-    const randomSpins = Math.floor(Math.random() * 5) + 5; // 5 to 9 full spins
+    const randomSpins = Math.floor(Math.random() * 5) + 8; // 8 to 12 full spins
     const winningIndex = Math.floor(Math.random() * options.length);
     const anglePerSlice = 360 / options.length;
     const winningAngle = winningIndex * anglePerSlice;
 
-    // Add a random offset within the slice to make it more random
-    const randomOffset = (Math.random() - 0.5) * anglePerSlice * 0.8;
+    // Add a random offset to land somewhere inside the winning slice, not on the lines.
+    // This offset must be positive and less than anglePerSlice.
+    const randomOffset = (Math.random() * 0.8 + 0.1) * anglePerSlice;
 
-    // The pointer is at the top (270 degrees), so we need to adjust
-    const targetRotation = randomSpins * 360 + (270 - winningAngle - randomOffset);
+    // The pointer is at the top. The wheel's coordinate system also starts with 0 degrees at the top.
+    // To make the winning slice land under the pointer, we need to rotate it by the negative of its angle.
+    const finalAngle = winningAngle + randomOffset;
 
+    // 이전 회전 값을 기반으로 누적 회전량을 계산합니다.
+    const currentAngle = rotation % 360;
+    const targetRotation = rotation + randomSpins * 360 - currentAngle - finalAngle;
     setRotation(targetRotation);
 
     setTimeout(() => {
