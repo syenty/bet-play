@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent, useEffect } from "react";
 import Link from "next/link";
 
 const MAX_PLAYERS = 100;
@@ -8,25 +8,46 @@ const MIN_PLAYERS = 2;
 
 export default function LadderGamePage() {
   const [numPlayers, setNumPlayers] = useState<number>(4);
+  const [playerCountInput, setPlayerCountInput] = useState<string>("4");
   const [players, setPlayers] = useState<string[]>(Array(4).fill(""));
+  const [setupStep, setSetupStep] = useState<"count" | "names">("count");
   const [outcomes, setOutcomes] = useState<string[]>(Array(4).fill(""));
   const [isGameReady, setIsGameReady] = useState(false);
   const [rungs, setRungs] = useState<boolean[][]>([]);
   const [results, setResults] = useState<number[] | null>(null);
+  const [revealedPlayers, setRevealedPlayers] = useState<boolean[]>([]);
   const [paths, setPaths] = useState<string[] | null>(null);
 
-  const handlePlayerCountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let count = parseInt(e.target.value, 10);
-    if (isNaN(count) || count < MIN_PLAYERS) {
-      count = MIN_PLAYERS;
+  // 참가 인원(numPlayers) 상태가 변경될 때 입력 필드(playerCountInput) 값을 동기화합니다.
+  useEffect(() => {
+    setPlayerCountInput(String(numPlayers));
+  }, [numPlayers]);
+
+  // 사용자가 입력 필드에 타이핑할 때 호출됩니다.
+  const handlePlayerCountInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPlayerCountInput(e.target.value);
+  };
+
+  const goToNameStep = () => {
+    const count = parseInt(playerCountInput, 10);
+
+    if (isNaN(count) || count < MIN_PLAYERS || count > MAX_PLAYERS) {
+      alert(`참가 인원은 ${MIN_PLAYERS}명에서 ${MAX_PLAYERS}명 사이로 입력해주세요.`);
+      setPlayerCountInput(String(numPlayers)); // 유효하지 않은 값이면 이전 값으로 되돌립니다.
+      return;
     }
-    if (count > MAX_PLAYERS) {
-      count = MAX_PLAYERS;
+
+    // 유효한 값이면 상태를 업데이트하고 다음 단계로 넘어갑니다.
+    if (count !== numPlayers) {
+      setNumPlayers(count);
+      setPlayers(Array(count).fill(""));
+      setOutcomes(Array(count).fill(""));
     }
-    setNumPlayers(count);
-    setPlayers(Array(count).fill(""));
-    setOutcomes(Array(count).fill(""));
-    resetGame();
+    setSetupStep("names");
+  };
+
+  const goToCountStep = () => {
+    setSetupStep("count");
   };
 
   const handleNameChange = (index: number, type: "player" | "outcome", value: string) => {
@@ -43,16 +64,11 @@ export default function LadderGamePage() {
 
   const handleOutcomeClick = (index: number) => {
     if (outcomes[index] === "") {
-      handleNameChange(index, "outcome", "당첨");
+      handleNameChange(index, "outcome", "X");
     }
   };
 
   const generateLadder = () => {
-    if (players.some((p) => p === "") || outcomes.some((o) => o === "")) {
-      alert("모든 참가자와 결과의 이름을 입력해주세요.");
-      return;
-    }
-
     const ladderHeight = 15;
     const newRungs: boolean[][] = Array(ladderHeight)
       .fill(null)
@@ -70,6 +86,7 @@ export default function LadderGamePage() {
     setIsGameReady(true);
     setResults(null);
     setPaths(null);
+    setRevealedPlayers(Array(numPlayers).fill(false));
   };
 
   const calculateResults = () => {
@@ -107,10 +124,30 @@ export default function LadderGamePage() {
     setPaths(pathData);
   };
 
+  const handlePlayerResultClick = (index: number) => {
+    if (!results) {
+      calculateResults();
+    }
+    setRevealedPlayers((prev) => {
+      const newRevealed = [...prev];
+      newRevealed[index] = true;
+      return newRevealed;
+    });
+  };
+
+  const revealAllResults = () => {
+    if (!results) {
+      calculateResults();
+    }
+    setRevealedPlayers(Array(numPlayers).fill(true));
+  };
+
   const resetGame = () => {
     setIsGameReady(false);
     setResults(null);
     setPaths(null);
+    setSetupStep("count");
+    setRevealedPlayers([]);
   };
 
   const ladderSVG = useMemo(() => {
@@ -158,76 +195,98 @@ export default function LadderGamePage() {
         )}
         {/* Paths */}
         {paths &&
-          paths.map((path, i) => (
-            <path
-              key={`p-${i}`}
-              d={path}
-              fill="none"
-              stroke={["#3b82f6", "#22c55e", "#ef4444", "#eab308", "#8b5cf6", "#ec4899"][i % 6]}
-              strokeWidth="4"
-              strokeDasharray="10,5"
-              className="animate-path-draw"
-            />
-          ))}
+          paths.map(
+            (path, i) =>
+              revealedPlayers[i] && (
+                <path
+                  key={`p-${i}`}
+                  d={path}
+                  fill="none"
+                  stroke={["#3b82f6", "#22c55e", "#ef4444", "#eab308", "#8b5cf6", "#ec4899"][i % 6]}
+                  strokeWidth="4"
+                />
+              )
+          )}
       </svg>
     );
-  }, [isGameReady, rungs, numPlayers, paths]);
+  }, [isGameReady, rungs, numPlayers, paths, revealedPlayers]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
-      <h1 className="mb-8 text-5xl font-bold">사다리 게임</h1>
+    <main className="flex min-h-screen flex-col items-center justify-start bg-gray-900 p-4 pt-12 sm:p-8 text-white">
+      <h1 className="mb-8 text-4xl font-bold sm:text-5xl">사다리 게임</h1>
 
       {!isGameReady ? (
         <div className="w-full max-w-4xl">
-          <div className="mb-6">
-            <label htmlFor="numPlayers" className="block mb-2 font-bold">
-              참가 인원 (2~100명):
-            </label>
-            <input
-              type="number"
-              id="numPlayers"
-              value={numPlayers}
-              onChange={handlePlayerCountChange}
-              min={MIN_PLAYERS}
-              max={MAX_PLAYERS}
-              className="w-full p-2 rounded bg-gray-700 text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">참가자</h3>
-              {players.map((_, i) => (
+          {setupStep === "count" ? (
+            <div className="mx-auto w-full max-w-sm">
+              <div className="mb-6">
+                <label htmlFor="numPlayers" className="mb-2 block font-bold">
+                  참가 인원 (2~100명):
+                </label>
                 <input
-                  key={i}
-                  type="text"
-                  placeholder={`참가자 ${i + 1}`}
-                  value={players[i]}
-                  onChange={(e) => handleNameChange(i, "player", e.target.value)}
-                  className="w-full p-2 mb-2 rounded bg-gray-700 text-white"
+                  type="number"
+                  id="numPlayers"
+                  value={playerCountInput}
+                  onChange={handlePlayerCountInputChange}
+                  min={MIN_PLAYERS}
+                  max={MAX_PLAYERS}
+                  className="w-full rounded bg-gray-700 p-2 text-white"
                 />
-              ))}
+              </div>
+              <button
+                onClick={goToNameStep}
+                className="w-full rounded-lg bg-blue-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-blue-600"
+              >
+                다음
+              </button>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-2">결과</h3>
-              {outcomes.map((_, i) => (
-                <input
-                  key={i}
-                  type="text"
-                  placeholder={`결과 ${i + 1}`}
-                  value={outcomes[i]}
-                  onChange={(e) => handleNameChange(i, "outcome", e.target.value)}
-                  onClick={() => handleOutcomeClick(i)}
-                  className="w-full p-2 mb-2 rounded bg-gray-700 text-white"
-                />
-              ))}
-            </div>
-          </div>
-          <button
-            onClick={generateLadder}
-            className="w-full rounded-lg bg-blue-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-blue-600"
-          >
-            사다리 생성하기
-          </button>
+          ) : (
+            <>
+              <div className="mb-6 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-4">
+                <div>
+                  <h3 className="mb-2 text-lg font-semibold">참가자</h3>
+                  {players.map((_, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      placeholder={`참가자 ${i + 1}`}
+                      value={players[i]}
+                      onChange={(e) => handleNameChange(i, "player", e.target.value)}
+                      className="mb-2 w-full rounded bg-gray-700 p-2 text-white"
+                    />
+                  ))}
+                </div>
+                <div>
+                  <h3 className="mb-2 text-lg font-semibold">결과</h3>
+                  {outcomes.map((_, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      placeholder={`결과 ${i + 1}`}
+                      value={outcomes[i]}
+                      onChange={(e) => handleNameChange(i, "outcome", e.target.value)}
+                      onClick={() => handleOutcomeClick(i)}
+                      className="mb-2 w-full rounded bg-gray-700 p-2 text-white"
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <button
+                  onClick={goToCountStep}
+                  className="w-full rounded-lg bg-gray-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-gray-600"
+                >
+                  이전
+                </button>
+                <button
+                  onClick={generateLadder}
+                  className="w-full rounded-lg bg-blue-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-blue-600"
+                >
+                  사다리 생성하기
+                </button>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center">
@@ -236,9 +295,15 @@ export default function LadderGamePage() {
             style={{ width: `${numPlayers * 100}px` }}
           >
             {players.map((player, i) => (
-              <div key={i} className="w-[100px] text-center font-semibold truncate" title={player}>
-                {player}
-              </div>
+              <button
+                key={i}
+                onClick={() => handlePlayerResultClick(i)}
+                disabled={revealedPlayers[i]}
+                className="w-[100px] truncate rounded-md py-2 text-center font-semibold transition-colors duration-200 hover:bg-blue-500 disabled:cursor-default disabled:bg-blue-700"
+                title={player || `참가자 ${i + 1}`}
+              >
+                {player || `참가자 ${i + 1}`}
+              </button>
             ))}
           </div>
 
@@ -248,20 +313,30 @@ export default function LadderGamePage() {
             className="flex w-full justify-around max-w-[calc(100px*10)] mt-2"
             style={{ width: `${numPlayers * 100}px` }}
           >
-            {outcomes.map((outcome, i) => (
-              <div key={i} className="w-[100px] text-center font-semibold truncate" title={outcome}>
-                {results ? outcomes[results.indexOf(i)] : "???"}
-              </div>
-            ))}
+            {Array.from({ length: numPlayers }).map((_, i) => {
+              // i는 플레이어의 시작 위치(열) 인덱스
+              const resultText =
+                revealedPlayers[i] && results
+                  ? outcomes[results[i]] || `결과 ${results[i] + 1}`
+                  : "???";
+              const titleText = results
+                ? `${players[i] || `참가자 ${i + 1}`}의 결과: ${resultText}`
+                : `결과 ${i + 1}`;
+              return (
+                <div key={i} className="h-6 w-[100px] text-center font-semibold" title={titleText}>
+                  <span className="inline-block w-full truncate">{resultText}</span>
+                </div>
+              );
+            })}
           </div>
 
           <div className="mt-8 flex gap-4">
             <button
-              onClick={calculateResults}
-              disabled={!!results}
-              className="rounded-lg bg-green-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed"
+              onClick={revealAllResults}
+              disabled={revealedPlayers.every(Boolean)}
+              className="rounded-lg bg-green-500 px-6 py-3 text-xl font-bold text-white transition-colors duration-300 hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-gray-600"
             >
-              결과 보기
+              전체 결과 보기
             </button>
             <button
               onClick={resetGame}
@@ -280,19 +355,6 @@ export default function LadderGamePage() {
           </button>
         </Link>
       </div>
-
-      <style jsx>{`
-        @keyframes draw {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-        .animate-path-draw {
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-          animation: draw 2s linear forwards;
-        }
-      `}</style>
     </main>
   );
 }
