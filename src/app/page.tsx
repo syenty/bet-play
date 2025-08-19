@@ -20,9 +20,11 @@ export default function HomePage() {
             반응 속도 테스트
           </button>
         </Link>
-        <button className="rounded-lg bg-yellow-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-yellow-600">
-          게임 4
-        </button>
+        <Link href="/card-flip">
+          <button className="w-full rounded-lg bg-yellow-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-yellow-600">
+            카드 뒤집기
+          </button>
+        </Link>
       </div>
     </main>
   );
