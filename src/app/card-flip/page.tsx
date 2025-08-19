@@ -20,16 +20,24 @@ const shuffleArray = (array: Card[]) => {
 };
 
 export default function CardFlipPage() {
-  const [totalCards, setTotalCards] = useState(12);
-  const [winnerCount, setWinnerCount] = useState(1);
+  const [totalCardsInput, setTotalCardsInput] = useState("12");
+  const [winnerCountInput, setWinnerCountInput] = useState("1");
   const [cards, setCards] = useState<Card[]>([]);
   const [gameState, setGameState] = useState<"setup" | "playing" | "finished">("setup");
   const [message, setMessage] = useState("");
 
   // 카드를 생성하고 섞는 함수
   const startGame = () => {
-    if (winnerCount > totalCards || winnerCount < 1) {
-      setMessage("당첨 개수는 1개 이상, 전체 카드 수 이하로 설정해주세요.");
+    const totalCards = parseInt(totalCardsInput, 10);
+    const winnerCount = parseInt(winnerCountInput, 10);
+
+    if (isNaN(totalCards) || totalCards < 2 || totalCards > 30) {
+      setMessage("전체 카드 수는 2에서 30 사이의 숫자여야 합니다.");
+      return;
+    }
+
+    if (isNaN(winnerCount) || winnerCount < 1 || winnerCount > totalCards) {
+      setMessage(`당첨 카드 수는 1에서 ${totalCards} 사이의 숫자여야 합니다.`);
       return;
     }
 
@@ -115,10 +123,8 @@ export default function CardFlipPage() {
               type="number"
               min="2"
               max="30"
-              value={totalCards}
-              onChange={(e) =>
-                setTotalCards(Math.max(2, Math.min(30, parseInt(e.target.value) || 2)))
-              }
+              value={totalCardsInput}
+              onChange={(e) => setTotalCardsInput(e.target.value)}
               className="w-full rounded bg-gray-800 p-2 text-white"
             />
           </div>
@@ -130,9 +136,8 @@ export default function CardFlipPage() {
               id="winnerCount"
               type="number"
               min="1"
-              max={totalCards}
-              value={winnerCount}
-              onChange={(e) => setWinnerCount(parseInt(e.target.value) || 1)}
+              value={winnerCountInput}
+              onChange={(e) => setWinnerCountInput(e.target.value)}
               className="w-full rounded bg-gray-800 p-2 text-white"
             />
           </div>
