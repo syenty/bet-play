@@ -15,9 +15,11 @@ export default function HomePage() {
             룰렛 게임
           </button>
         </Link>
-        <button className="rounded-lg bg-red-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-red-600">
-          게임 3
-        </button>
+        <Link href="/reaction-speed">
+          <button className="w-full rounded-lg bg-red-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-red-600">
+            반응 속도 테스트
+          </button>
+        </Link>
         <button className="rounded-lg bg-yellow-500 px-8 py-4 text-2xl font-bold text-white transition-colors duration-300 hover:bg-yellow-600">
           게임 4
         </button>
