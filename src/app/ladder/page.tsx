@@ -314,14 +314,19 @@ export default function LadderGamePage() {
             style={{ width: `${numPlayers * 100}px` }}
           >
             {Array.from({ length: numPlayers }).map((_, i) => {
-              // i는 플레이어의 시작 위치(열) 인덱스
+              // i는 결과의 위치(열) 인덱스입니다.
+              // 이 결과 위치에 도달하는 플레이어의 시작 인덱스를 찾습니다.
+              const playerIndex = results ? results.indexOf(i) : -1;
+              const isPlayerRevealed = playerIndex !== -1 && revealedPlayers[playerIndex];
+
               const resultText =
-                revealedPlayers[i] && results
-                  ? outcomes[results[i]] || `결과 ${results[i] + 1}`
-                  : "???";
-              const titleText = results
-                ? `${players[i] || `참가자 ${i + 1}`}의 결과: ${resultText}`
-                : `결과 ${i + 1}`;
+                isPlayerRevealed && results ? outcomes[i] || `결과 ${i + 1}` : "???";
+              const titleText =
+                isPlayerRevealed && results
+                  ? `${players[playerIndex] || `참가자 ${playerIndex + 1}`}의 결과: ${
+                      outcomes[i] || `결과 ${i + 1}`
+                    }`
+                  : `결과 ${i + 1}`;
               return (
                 <div key={i} className="h-6 w-[100px] text-center font-semibold" title={titleText}>
                   <span className="inline-block w-full truncate">{resultText}</span>
