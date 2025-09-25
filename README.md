@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bet Play: 간단한 내기 게임 모음
 
-## Getting Started
+`Bet Play`는 친구, 동료들과 함께 가볍게 즐길 수 있는 다양한 내기 게임을 모아놓은 웹 애플리케이션입니다. 점심값 내기, 커피 내기 등 어떤 상황에서든 재미있게 사용할 수 있습니다.
 
-First, run the development server:
+## ✨ 주요 기능 및 게임 목록
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+현재 다음과 같은 게임들을 즐길 수 있습니다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **🎡 룰렛 게임**: 원하는 옵션을 자유롭게 추가하고 룰렛을 돌려 결과를 확인하세요. 옵션 개수에 따라 룰렛이 동적으로 생성됩니다.
+- **🃏 카드 뒤집기**: 전체 카드 수와 당첨 카드 수를 설정하고, 숨겨진 '당첨' 카드를 찾아내는 게임입니다.
+- **🪜 사다리 게임**: 참가자 수와 결과를 입력하여 클래식한 사다리타기를 즐길 수 있습니다.
+- **⚡️ 반응 속도 테스트**: 화면의 색이 바뀌는 순간을 포착하여 반응 속도를 측정하는 게임입니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ 사용된 기술
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+이 프로젝트는 다음과 같은 기술들을 사용하여 만들어졌습니다.
 
-## Learn More
+- **Next.js**: React 기반의 프레임워크로, 서버 사이드 렌더링과 정적 사이트 생성을 지원합니다.
+- **React**: 사용자 인터페이스를 만들기 위한 JavaScript 라이브러리입니다.
+- **TypeScript**: JavaScript에 정적 타입을 추가한 언어입니다.
+- **Tailwind CSS**: 유틸리티-퍼스트 CSS 프레임워크로, 빠르고 효율적인 스타일링을 가능하게 합니다.
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 시작하기
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+프로젝트를 로컬 환경에서 실행하려면 다음 단계를 따르세요.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 사전 요구 사항
 
-## Deploy on Vercel
+- Node.js (v18.x 이상 권장)
+- npm, yarn, 또는 pnpm
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 설치 및 실행
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  **프로젝트 클론하기:**
+
+    ```bash
+    git clone https://github.com/your-username/bet-play.git
+    cd bet-play
+    ```
+
+2.  **의존성 설치하기:**
+
+    ```bash
+    npm install
+    # 또는
+    # yarn install
+    # 또는
+    # pnpm install
+    ```
+
+3.  **개발 서버 실행하기:**
+
+    ```bash
+    npm run dev
+    # 또는
+    # yarn dev
+    # 또는
+    # pnpm dev
+    ```
+
+4.  브라우저에서 http://localhost:3000으로 접속하여 애플리케이션을 확인합니다.
